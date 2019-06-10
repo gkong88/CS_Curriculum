@@ -2,9 +2,11 @@
 
 This project documents my personal curriculum of online, open-sourced, university-level courses that attempt to emulate the breadth and depth of an undergraduate CS degree.  
 
-Initial inspiration came from [The Open-Source Computer Science Degree](https://github.com/ossu/computer-science) project on GitHub. My primary template was [MIT 6-3 Computer Science Degree Requirements](http://www.eecs.mit.edu/curriculum2017). A majority of requirements were satisfied directly with [MIT Open Courseware](https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/) and, when available, the more interactive versions ported to edX. The remaining requirements were satisfied using courses from other institutions (UC Berkeley, Stanford, CalTech, IDC Herzliya) , typically when the MIT OCW version was incomplete in it's Video Lectures, Homeworks, Tests, or Project Autograders.
+Initial inspiration came from [The Open-Source Computer Science Degree](https://github.com/ossu/computer-science) project on GitHub. My primary template was [MIT 6-3 Computer Science Degree Requirements](http://www.eecs.mit.edu/curriculum2017) and their [degree roadmap](https://www.eecs.mit.edu/docs/ug/freshman_roadmaps.pdf). A majority of requirements were satisfied directly with [MIT Open Courseware](https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/) and, when available, the more interactive versions ported to edX. The remaining requirements were satisfied using courses from other institutions (UC Berkeley, Stanford, CalTech, IDC Herzliya), typically when the MIT OCW version was incomplete in it's Video Lectures, Homeworks, Tests, or Project Autograders.
 
 ![](imgs/MIT_CS_Curriculum.png)
+
+Customized CS curriculum roadmap.
 
 ### Introductory Subjects
 
