@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="448f66dd-9e42-489f-a471-01a813de0ff8" name="Default Changelist" comment="Added curriculum map. Added descriptions of all courses taken and resources">
-      <change afterPath="$PROJECT_DIR$/_AUG_Database_Systems_UCB_CS162/Midterm1.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_AUG_Machine_Learning_Cal_Tech_CS156/Final.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_Foundation_Algorithms_MIT_6.006/Final.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_Header_Algorithms_and_Computation_MIT_6.046/Midterm1.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_Header_Algorithms_and_Computation_MIT_6.046/Midterm2.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_Header_Artificial_Intelligence_UCB_CS188/Final.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/_Header_Software_Construction_MIT_6.031/Exams/Final.pdf" afterDir="false" />
-    </list>
+    <list default="true" id="448f66dd-9e42-489f-a471-01a813de0ff8" name="Default Changelist" comment="Added curriculum map. Added descriptions of all courses taken and resources" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +9,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf />
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -55,6 +47,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -66,10 +59,10 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -130,6 +123,7 @@
       <updated>1560200491082</updated>
       <workItem from="1560200497960" duration="9032000" />
       <workItem from="1560320224392" duration="1363000" />
+      <workItem from="1560371927350" duration="14000" />
     </task>
     <task id="LOCAL-00001" summary="Added curriculum map. Added descriptions of all courses taken and resources">
       <created>1560209634232</created>
@@ -142,12 +136,12 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10395000" />
+    <option name="totallyTimeSpent" value="10409000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="583" y="210" width="1708" height="1047" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2821602" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28518122" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -161,7 +155,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.32932165" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.32827735" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
