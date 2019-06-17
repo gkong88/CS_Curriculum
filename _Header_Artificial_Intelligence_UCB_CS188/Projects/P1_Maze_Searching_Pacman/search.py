@@ -72,6 +72,13 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+class Node():
+    def __init__(self, state, path, cost):
+        self.state=state
+        self.path=path
+        self.cost=cost
+        
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -86,18 +93,67 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Stack()
+    node = Node(problem.getStartState(), [],0)
+    fringe.push(node)
+    explored = {}
+    
+    while (fringe.isEmpty() == False):
+        node = fringe.pop()
+        if not explored.has_key(node):
+            if problem.isGoalState(node.state): return node.path
+            explored[node.state]=True
+            for successor in problem.getSuccessors(node.state):
+                if not explored.has_key(successor[0]):
+                    fringe.push(Node(successor[0], node.path+[successor[1]], node.cost+successor[2]))
+    assert(False)
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    fringe = util.Queue()
+    node = Node(problem.getStartState(), [],0)
+    fringe.push(node)
+    explored = {}
+    queued = {}
+    
+    while (fringe.isEmpty() == False):
+        node = fringe.pop()
+        if not explored.has_key(node):
+            if problem.isGoalState(node.state): 
+                print("GOAL FOUND")
+                print(node.path)
+                return node.path
+            explored[node.state]=node
+            for successor in problem.getSuccessors(node.state):
+                successorNode = Node(successor[0], node.path+[successor[1]], node.cost+successor[2])
+                if ( (not explored.has_key(successorNode.state)) and (not queued.has_key(successorNode.state)) ):
+                    queued[successorNode.state]=successorNode
+                    fringe.push(successorNode)
+    print("FRINGE HAS EMPTIED OUT")
+    assert(False)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+#    update priority queue updat emethod to match on some other shit
+    fringe = util.PriorityQueueNodes()
+    node = Node(problem.getStartState(), [],0)
+    fringe.update(node, node.cost)
+    explored = {}
+    
+    while (fringe.isEmpty() == False):
+        node = fringe.pop()
+        if not explored.has_key(node):
+            if problem.isGoalState(node.state): 
+                return node.path
+            explored[node.state]=node
+            for successor in problem.getSuccessors(node.state):
+                successorNode = Node(successor[0], node.path+[successor[1]], node.cost+successor[2])
+                if ( (not explored.has_key(successorNode.state)) ):
+                    fringe.update(successorNode, successorNode.cost)
+    assert(False)
 
 def nullHeuristic(state, problem=None):
     """
@@ -106,10 +162,29 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueueNodes()
+    node = Node(problem.getStartState(), [],0)
+    fringe.update(node, node.cost+heuristic(node.state, problem))
+    explored = {}
+    
+    while (fringe.isEmpty() == False):
+        node = fringe.pop()
+#        print("Exploring node "+str(node.state[0])+", Food "+str(node.state[1].asList()))
+#        print("    (f,g,h)=("+str(node.cost+heuristic(node.state, problem))+", "+str(node.cost)+", "+str(heuristic(node.state, problem))+")")
+        if not explored.has_key(node):
+            if problem.isGoalState(node.state): 
+                return node.path
+            explored[node.state]=node
+            for successor in problem.getSuccessors(node.state):
+                successorNode = Node(successor[0], node.path+[successor[1]], node.cost+successor[2])
+                if ( (not explored.has_key(successorNode.state)) ):
+                    fringe.update(successorNode, successorNode.cost+heuristic(successorNode.state, problem) )
+    assert(False)
 
 
 # Abbreviations
