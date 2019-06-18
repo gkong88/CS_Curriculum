@@ -17,6 +17,7 @@ from game import Directions
 from game import Actions
 from util import manhattanDistance
 import util
+import pdb
 
 class StationaryGhost( ghostAgents.GhostAgent ):
     def getDistribution( self, state ):
@@ -32,8 +33,16 @@ class DispersingGhost( ghostAgents.GhostAgent ):
 
     def getDistribution( self, state ):
         ghostState = state.getGhostState( self.index )
-        legalActions = state.getLegalActions( self.index )
+        assert self.index > 0, "you're calling a pacman"
         pos = state.getGhostPosition( self.index )
+        try:
+            assert len(state.getGhostPosition( self.index ))==2, "invalid position %s"%pos
+        except:
+            # pdb.set_trace()
+            assert False, "invalid position %s"%pos
+        legalActions = state.getLegalActions( self.index ) #invariant, should never be called with index == 0
+        pos = state.getGhostPosition( self.index )
+        
         isScared = ghostState.scaredTimer > 0
 
         speed = 1
