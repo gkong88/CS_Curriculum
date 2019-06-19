@@ -7,6 +7,7 @@
 #include "mm_alloc.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 
 s_mem_block_ptr head = NULL;
@@ -20,10 +21,17 @@ s_mem_block_ptr mem_block_init(s_mem_block_ptr ptr) {
 }
 
 /*
+ * Zero fills the entire memory block located at ptr.
+ */
+void static zero_fill(s_mem_block_ptr block_ptr) {
+    memset(block_ptr -> mem_pointer, 0, block_ptr -> size);
+}
+
+/*
  * Attempts to split the memory block located at s_mem_block_ptr
  * if it has enough space.
  *
- * Otherwise, does nothing. 
+ * Otherwise, does nothing.
  */
 void split_block(s_mem_block_ptr block_ptr, size_t size) {
     if (block_ptr->size - size <= sizeof(s_mem_block_ptr)) {
@@ -53,7 +61,8 @@ void *first_fit(size_t size) {
     s_mem_block_ptr block_ptr = head;
     while (block_ptr != NULL) {
         if (block_ptr->size >= size) {
-            return split_block(block_ptr);
+            split_block(block_ptr, size);
+            return block_ptr;
         }
         else {
             block_ptr = block_ptr->next;
@@ -107,13 +116,20 @@ void *mm_malloc(size_t size) {
      * If first-fit fails, creates more space as necessary.
      */
     /* YOUR CODE HERE */
-    s_mem_block_ptr free_block_ptr;
-
-    free_block_ptr = first_fit(head);
-    if (free_block_ptr == NULL) {
-        free_block_ptr = get_new_block(size_t size);
+    if (size == 0) {
+        return NULL;
     }
-    return NULL;
+    s_mem_block_ptr free_block_ptr;
+    free_block_ptr = first_fit(head);
+    if (free_block_ptr == NULL) { // first_fit failed
+        free_block_ptr = get_new_block(size);
+        if (free_block_ptr == NULL) {
+            return NULL;
+        }
+    }
+    zero_fill(free_block_ptr);
+    free_block_ptr -> free = 0;
+    return free_block_ptr -> mem_pointer;
 }
 
 /*
@@ -131,8 +147,27 @@ void *mm_realloc(void *ptr, size_t size) {
      * Phase 3: Copies data over
      */
     /* YOUR CODE HERE */
-    return NULL;
+    mm_free(ptr); // data is still there!
+    if (size == 0) {
+        return NULL;
+    }
+    else {
+        s_mem_block_ptr old_block_ptr = (s_mem_block_ptr) ptr;
+        s_mem_block_ptr new_block_ptr = mm_malloc(size);
+        memcpy(new_block_ptr->mem_pointer, old_block_ptr->mem_pointer, size);
+        return new_block_ptr;
+    }
 }
+/*
+ * Coalesces free blocks block_ptr and block_ptr prev into one block
+ */
+s_mem_block_ptr coalesce_back(s_mem_block_ptr block_ptr) {
+    block_ptr -> next -> prev = block_ptr -> prev;  // update next bacl link to skip over current block
+    block_ptr -> prev -> next = block_ptr -> next; // update prev next link to skip over current block
+    block_ptr -> prev -> size = block_ptr -> prev -> size + block_ptr -> size + sizeof(s_mem_block_ptr); // size update
+    return block_ptr -> prev;
+}
+
 
 /*
  * Frees memory block that starts at *ptr.
@@ -141,19 +176,14 @@ void *mm_realloc(void *ptr, size_t size) {
  * If given a null pointer, does nothing
  */
 void mm_free(void *ptr) {
-    /* YOUR CODE HERE */
+    s_mem_block_ptr  block_ptr = (s_mem_block_ptr) ptr;
+    if (ptr == NULL) return;
+    block_ptr -> free = 1;
+    if (block_ptr -> prev != NULL && block_ptr -> prev -> free == 1) {
+        block_ptr = coalesce_back(block_ptr);
+    }
+    if (block_ptr -> next != NULL && block_ptr -> next -> free == 1) {
+        coalesce_back(block_ptr -> next);
+    }
 }
 
-/*
- * Zero fills the entire memory block located at ptr.
- */
-void static zero_fill(void *ptr) {
-
-}
-
-/*
- * Free's memory block. Coalesces adjacent memory blocks if possible.
- */
-void static free_and_coalesce(void *ptr) {
-
-}
