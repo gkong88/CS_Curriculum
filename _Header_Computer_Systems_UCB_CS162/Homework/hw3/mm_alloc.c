@@ -13,12 +13,6 @@
 s_mem_block_ptr head = NULL;
 s_mem_block_ptr tail = NULL;
 
-/*
- * Memory block init
- */
-s_mem_block_ptr mem_block_init(s_mem_block_ptr ptr) {
-    ptr->next = NULL;
-}
 
 /*
  * Zero fills the entire memory block located at ptr.
@@ -34,17 +28,21 @@ void static zero_fill(s_mem_block_ptr block_ptr) {
  * Otherwise, does nothing.
  */
 void split_block(s_mem_block_ptr block_ptr, size_t size) {
-    if (block_ptr->size - size <= sizeof(s_mem_block_ptr)) {
+    if ((int) block_ptr->size - (int) size - (int) sizeof(struct memory_block) <= 0) {
         return; // not enough extra space to make it worth while
     }
     else {
-        s_mem_block_ptr new_block_ptr = block_ptr + size + sizeof(struct memory_block);
-        new_block_ptr -> mem_pointer = new_block_ptr + sizeof(struct memory_block);
-        new_block_ptr -> size = block_ptr -> size - size - sizeof(struct memory_block);
+        // TODO: something going wrong at the following line
+        s_mem_block_ptr new_block_ptr = (char *)block_ptr + size + sizeof(struct memory_block);
+        new_block_ptr -> mem_pointer = (char *) new_block_ptr + sizeof(struct memory_block);
+        new_block_ptr -> size = (int) block_ptr -> size - (int) size - (int) sizeof(struct memory_block);
         new_block_ptr -> prev = block_ptr;
         new_block_ptr -> free = 1;
         new_block_ptr -> next = block_ptr -> next;
-        if (new_block_ptr -> next != NULL) {
+        if (new_block_ptr -> next == (void *) 0) {
+            tail = new_block_ptr;
+        }
+        else {
             new_block_ptr -> next -> prev = new_block_ptr;
         }
         block_ptr -> next = new_block_ptr;
@@ -60,7 +58,7 @@ void split_block(s_mem_block_ptr block_ptr, size_t size) {
 void *first_fit(size_t size) {
     s_mem_block_ptr block_ptr = head;
     while (block_ptr != NULL) {
-        if (block_ptr->size >= size) {
+        if (block_ptr -> free == 1 && block_ptr->size >= size) { //if it's free and it's big enough, great
             split_block(block_ptr, size);
             return block_ptr;
         }
@@ -78,13 +76,14 @@ void *first_fit(size_t size) {
  * Updates tail reference as necessary.
  */
 void *get_new_block(size_t size) {
-    void *mem_pointer = sbrk(size + sizeof(struct memory_block)); // alloc memory in the heap
-    if (mem_pointer == -1) {
+    void *mem_pointer = sbrk(0); // get current break
+    sbrk(size + sizeof(struct memory_block)); // alloc memory in the heap
+    if (mem_pointer == (void *) -1) {
         return NULL; // failed, sbrk cannot extend heap further!
     }
     s_mem_block_ptr new_block_ptr = (s_mem_block_ptr) mem_pointer; // put your metadata struct at the start of it
     new_block_ptr -> free = 1; // fill in your meta data
-    new_block_ptr -> mem_pointer = mem_pointer + sizeof(struct memory_block);
+    new_block_ptr -> mem_pointer = (char *) mem_pointer + sizeof(struct memory_block);
     new_block_ptr -> next = NULL;
     new_block_ptr -> prev = tail;
     new_block_ptr -> size = size;
@@ -116,11 +115,11 @@ void *mm_malloc(size_t size) {
      * If first-fit fails, creates more space as necessary.
      */
     /* YOUR CODE HERE */
-    if (size == 0) {
+    if ( (int) size < 1) {
         return NULL;
     }
     s_mem_block_ptr free_block_ptr;
-    free_block_ptr = first_fit(head);
+    free_block_ptr = first_fit(size);
     if (free_block_ptr == NULL) { // first_fit failed
         free_block_ptr = get_new_block(size);
         if (free_block_ptr == NULL) {
@@ -152,19 +151,26 @@ void *mm_realloc(void *ptr, size_t size) {
         return NULL;
     }
     else {
-        s_mem_block_ptr old_block_ptr = (s_mem_block_ptr) ptr;
-        s_mem_block_ptr new_block_ptr = mm_malloc(size);
-        memcpy(new_block_ptr->mem_pointer, old_block_ptr->mem_pointer, size);
-        return new_block_ptr;
+        void *new_ptr = mm_malloc(size);
+        memcpy(new_ptr, ptr, size);
+        return new_ptr;
     }
 }
 /*
  * Coalesces free blocks block_ptr and block_ptr prev into one block
  */
-s_mem_block_ptr coalesce_back(s_mem_block_ptr block_ptr) {
-    block_ptr -> next -> prev = block_ptr -> prev;  // update next bacl link to skip over current block
-    block_ptr -> prev -> next = block_ptr -> next; // update prev next link to skip over current block
-    block_ptr -> prev -> size = block_ptr -> prev -> size + block_ptr -> size + sizeof(s_mem_block_ptr); // size update
+void *coalesce_back(s_mem_block_ptr block_ptr) {
+    if (block_ptr -> next) {
+        // not the tail
+        block_ptr -> next -> prev = block_ptr -> prev;  // update next bacl link to skip over current block
+        block_ptr -> prev -> next = block_ptr -> next; // update prev next link to skip over current block
+    }
+    else {
+        // is the tail
+        tail = block_ptr -> prev;
+        block_ptr -> prev -> next = NULL;
+    }
+    block_ptr -> prev -> size = (block_ptr -> prev -> size) + (block_ptr -> size) + sizeof(struct memory_block); // size update
     return block_ptr -> prev;
 }
 
@@ -176,14 +182,19 @@ s_mem_block_ptr coalesce_back(s_mem_block_ptr block_ptr) {
  * If given a null pointer, does nothing
  */
 void mm_free(void *ptr) {
-    s_mem_block_ptr  block_ptr = (s_mem_block_ptr) ptr;
     if (ptr == NULL) return;
+    s_mem_block_ptr  block_ptr = (s_mem_block_ptr)((char *) ptr - sizeof(struct memory_block));
     block_ptr -> free = 1;
-    if (block_ptr -> prev != NULL && block_ptr -> prev -> free == 1) {
-        block_ptr = coalesce_back(block_ptr);
+//    if (block_ptr -> prev) {
+    if (block_ptr -> prev != NULL) {
+        if (block_ptr -> prev -> free == 1) {
+            block_ptr = coalesce_back(block_ptr);
+        }
     }
-    if (block_ptr -> next != NULL && block_ptr -> next -> free == 1) {
-        coalesce_back(block_ptr -> next);
+    if (block_ptr -> next != NULL) {
+        if (block_ptr -> next -> free == 1) {
+            coalesce_back(block_ptr->next);
+        }
     }
 }
 
