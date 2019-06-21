@@ -48,7 +48,7 @@ Ommitted. Equivalent coverage of material is found in MIT 6.031: Software Constr
 
 **Algorithms**
 
-MIT 6.0042: Mathematics for Computer Science.
+MIT 6.006: Introduction to Algorithms
 
 Fall 2011 version with Professors Erik Demaine and Srini Devadas.
 
