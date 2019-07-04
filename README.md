@@ -1,4 +1,4 @@
-# Open-Source Computer Science Degree
+# Open-Source Computer Science Education
 
 This project documents my personal curriculum of online, open-sourced, university-level courses that attempt to emulate the breadth and depth of an undergraduate CS degree.  
 
