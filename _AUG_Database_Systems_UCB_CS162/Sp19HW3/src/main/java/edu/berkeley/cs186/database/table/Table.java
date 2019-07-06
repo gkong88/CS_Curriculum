@@ -10,8 +10,6 @@ import edu.berkeley.cs186.database.common.BacktrackingIterator;
 import edu.berkeley.cs186.database.common.Bits;
 import edu.berkeley.cs186.database.common.Buffer;
 import edu.berkeley.cs186.database.concurrency.LockContext;
-import edu.berkeley.cs186.database.concurrency.LockType;
-import edu.berkeley.cs186.database.concurrency.LockUtil;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.io.Page;
 import edu.berkeley.cs186.database.io.PageAllocator;
@@ -230,7 +228,6 @@ public class Table implements Closeable {
         return allocator.getNumPages() - 1;
     }
 
-    // TODO(mwhittaker): This should not be public. Right now, other code
     // elsewhere reads the bitmap of tables, so we're forced to make it public.
     // We should refactor to avoid this.
     public byte[] getBitMap(BaseTransaction transaction, Page page) {
@@ -490,6 +487,13 @@ public class Table implements Closeable {
      */
     public class RIDPageIterator implements BacktrackingIterator<RecordId> {
         //member variables go here
+        BaseTransaction transaction;
+        Page page;
+        int currentValidBitmapIndex;
+        int prevValidBitmapIndex;
+        int markIndex;
+        byte[] bitmap;
+
 
         /**
         * The following method signature is provided for guidance, but not necessary. Feel free to
@@ -499,23 +503,45 @@ public class Table implements Closeable {
         // You do not need to manipulate the transaction parameter, just pass it
         // into any method that requires a transaction that you need to call.
         public RIDPageIterator(BaseTransaction transaction, Page page) {
-            throw new UnsupportedOperationException("TODO(hw3): implement");
+            this.transaction = transaction;
+            this.page = page;
+            bitmap = getBitMap(transaction, page);
+            currentValidBitmapIndex = 0;
+            while (currentValidBitmapIndex < numRecordsPerPage && Bits.getBit(bitmap, currentValidBitmapIndex) != Bits.Bit.ONE)
+            {
+                currentValidBitmapIndex++;
+            }
+            prevValidBitmapIndex = currentValidBitmapIndex;
         }
 
         public boolean hasNext() {
-            throw new UnsupportedOperationException("TODO(hw3): implement");
+            return currentValidBitmapIndex < numRecordsPerPage;
         }
 
         public RecordId next() {
-            throw new UnsupportedOperationException("TODO(hw3): implement");
+            RecordId result = new RecordId(page.getPageNum() , (short) currentValidBitmapIndex);
+            advanceToNextValidIndex();
+            return result;
+        }
+
+        /**
+         * Shifts current index to next valid index in bitmap.
+         */
+        private void advanceToNextValidIndex() {
+            prevValidBitmapIndex = currentValidBitmapIndex;
+            currentValidBitmapIndex++;
+            while (currentValidBitmapIndex < numRecordsPerPage && Bits.getBit(bitmap, currentValidBitmapIndex) != Bits.Bit.ONE)
+            {
+                currentValidBitmapIndex++;
+            }
         }
 
         public void mark() {
-            throw new UnsupportedOperationException("TODO(hw3): implement");
+            markIndex = prevValidBitmapIndex;
         }
 
         public void reset() {
-            throw new UnsupportedOperationException("TODO(hw3): implement");
+            currentValidBitmapIndex = markIndex;
         }
     }
 
@@ -587,9 +613,14 @@ public class Table implements Closeable {
         RIDBlockIterator(BaseTransaction transaction, BacktrackingIterator<Page> pageIter) {
             this.transaction = transaction;
             this.pageIter = pageIter;
-
-            throw new UnsupportedOperationException("TODO(hw3): implement");
-            //if you want to add anything to this constructor, feel free to
+            // find a page that has a record available
+            while (pageIter.hasNext()) {
+                recordIter = new RIDPageIterator(transaction, pageIter.next());
+                if (recordIter.hasNext()) {
+                    break;
+                }
+            }
+            prevRecordIter = recordIter;
         }
 
         /**
@@ -626,11 +657,21 @@ public class Table implements Closeable {
         }
 
         public boolean hasNext() {
-            throw new UnsupportedOperationException("TODO(hw3): implement");
+            if (recordIter == null || (!recordIter.hasNext() && !pageIter.hasNext())) {
+                return false;
+            }
+            else {
+                return true;
+            }
         }
 
         public RecordId next() {
-            throw new UnsupportedOperationException("TODO(hw3): implement");
+            prevRecordIter = recordIter;
+            if (!recordIter.hasNext()) {
+                recordIter = new RIDPageIterator(transaction, pageIter.next());
+            }
+            RecordId result = recordIter.next();
+            return result;
         }
 
         /**
